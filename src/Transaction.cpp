@@ -1,5 +1,5 @@
 #include "Transaction.h"
-#include "SHA256.h"
+#include "crypto/SHA256.h"
 
 #include <cstring>
 
@@ -11,7 +11,7 @@ Transaction::Transaction(Wallet *to, Wallet *from, double amount, double fee)
     this->fee = fee;
 }
 
-hash_t Transaction::get_hash()
+void Transaction::update_hash()
 {
     char *wallets = new char[2];
     wallets[0] = to->get_ID();
@@ -28,10 +28,10 @@ hash_t Transaction::get_hash()
     delete values;
 
     hash_t left_hash;
-    if(left == nullptr)
+    if (left == nullptr)
     {
         left_hash = new unsigned char[32];
-        for(int i = 0; i < 32; i++)
+        for (int i = 0; i < 32; i++)
         {
             left_hash[i] = 0;
         }
@@ -42,10 +42,10 @@ hash_t Transaction::get_hash()
     }
 
     hash_t right_hash;
-    if(right == nullptr)
+    if (right == nullptr)
     {
         right_hash = new unsigned char[32];
-        for(int i =
+        for (int i =
                 0; i < 32; i++)
         {
             right_hash[i] = 0;
@@ -58,7 +58,7 @@ hash_t Transaction::get_hash()
 
     char *concat_data = new char[128];
 
-    for(int i = 0; i < 32; i++)
+    for (int i = 0; i < 32; i++)
     {
         concat_data[i] = wallet_hash[i];
         concat_data[i + 32] = value_hash[i];
@@ -67,19 +67,31 @@ hash_t Transaction::get_hash()
         concat_data[i + 96] = right_hash[i];
     }
 
-    hash_t final = SHA256(concat_data);
     delete concat_data;
-
     delete wallet_hash;
     delete value_hash;
     delete left_hash;
     delete right_hash;
 
-    return final;
+    hash = SHA256(concat_data);
 }
 
-void Transaction::set_children(Transaction *left, Transaction *right)
+hash_t Transaction::get_hash()
+{
+    if(hash == nullptr)
+    {
+        update_hash();
+    }
+
+    return hash;
+}
+
+void Transaction::set_left_child(Transaction *left)
 {
     this->left = left;
+}
+
+void Transaction::set_right_child(Transaction *right)
+{
     this->right = right;
 }

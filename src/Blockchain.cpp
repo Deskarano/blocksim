@@ -1,11 +1,18 @@
 #include "Blockchain.h"
 
-Blockchain::Blockchain(unsigned int num_wallets, unsigned int miner_wallet)
+Blockchain::Blockchain(unsigned int num_wallets, unsigned int miner_wallet, unsigned int max_tx)
 {
-    this->blocks = new std::vector<Block>;
+    this->wallets = new std::vector<Wallet *>;
 
-    Block *genesis_block = new Block();
-    Transaction *genesis_tx = new Transaction(nullptr, nullptr, 0, 25);
+    for(int i = 0; i < num_wallets; i++)
+    {
+        wallets->push_back(new Wallet(i));
+    }
 
-    genesis_block->add_tx(genesis_tx);
+    this->blocks = new std::vector<Block *>;
+
+    Transaction *genesis_tx = new Transaction(wallets->at(miner_wallet), nullptr, 25, 0);
+    Block *genesis_block = new Block(genesis_tx, max_tx);
+
+    blocks->push_back(genesis_block);
 }

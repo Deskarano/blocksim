@@ -8,14 +8,14 @@
 class Blockchain
 {
 public:
-    Blockchain(unsigned int num_wallets, unsigned int miner_wallet);
+    Blockchain(unsigned int num_wallets, unsigned int miner_wallet, unsigned int max_tx);
     ~Blockchain();
 
     int save(char *path);
 
 private:
-    std::vector<Block> *blocks;
-    Wallet wallets[];
+    std::vector<Block *> *blocks;
+    std::vector<Wallet *> *wallets;
 };
 
 
