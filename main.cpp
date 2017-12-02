@@ -1,5 +1,5 @@
 #include <iostream>
-#include "src/Blockchain.h"
+#include "src/bc/Blockchain.h"
 
 using namespace std;
 
@@ -9,7 +9,11 @@ using namespace std;
 
 int main()
 {
-    Blockchain *chain = new Blockchain(0);
+    Blockchain *chain = new Blockchain(5);
+
+    //chain->miner_start(0);
+
+
     /*
     string input;
     while (input != "exit")

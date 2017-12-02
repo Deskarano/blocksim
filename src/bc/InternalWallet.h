@@ -22,17 +22,9 @@ public:
     double get_uncomfirmed_balance()
     { return unconfirmed_balance; }
 
-    void confirm(unsigned char *block_hash)
-    {
-        balance = unconfirmed_balance;
-        last_confirmed_block;
-    }
-
 private:
     double balance;
     double unconfirmed_balance;
-
-    unsigned char *last_confirmed_block;
 };
 
 #endif //BLOCKSIM_INTERNALWALLET_H

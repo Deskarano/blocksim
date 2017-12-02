@@ -6,8 +6,8 @@ set(CMAKE_CXX_FLAGS "-Wall")
 
 set(SOURCE_FILES main.cpp
 
-        src/Blockchain.cpp
-        src/Blockchain.h
+        src/bc/Blockchain.cpp
+        src/bc/Blockchain.h
         src/Block.cpp
         src/Block.h
         src/Transaction.cpp
@@ -16,5 +16,5 @@ set(SOURCE_FILES main.cpp
         src/crypto/SHA256.cpp
         src/crypto/SHA256.h
 
-        src/InternalWallet.h)
+        src/bc/InternalWallet.h)
 add_executable(blocksim ${SOURCE_FILES})

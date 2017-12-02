@@ -8,18 +8,21 @@
 class Block
 {
 public:
-    Block(Transaction *tx_root, unsigned char *prev_hash);
+    Block(unsigned char *prev_hash);
 
     void add_tx(Transaction *tx);
 
     void update_hash();
     unsigned char *get_hash();
 
+    std::vector<Transaction *> *get_tx_pointers()
+    { return tx_pointers; }
+
     unsigned int get_size()
     { return size; }
 
-    std::vector<Transaction *> *get_tx_pointers()
-    { return tx_pointers; }
+    void set_nonce(unsigned int nonce)
+    { this->nonce = nonce; }
 
 private:
     std::vector<Transaction *> *tx_pointers;
@@ -27,6 +30,7 @@ private:
 
     unsigned char *hash;
     unsigned char *prev_hash;
+    unsigned int nonce;
 };
 
 #endif //BLOCKSIM_BLOCK_H
