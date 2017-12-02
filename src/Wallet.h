@@ -12,6 +12,8 @@ public:
 private:
     unsigned char ID;
     double balance;
+
+    unsigned char *last_block_applied;
 };
 
 #endif //BLOCKSIM_WALLET_H

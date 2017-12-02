@@ -8,12 +8,19 @@
 class Blockchain
 {
 public:
-    Blockchain(unsigned int num_wallets, unsigned int miner_wallet, unsigned int max_tx);
-    ~Blockchain();
+    Blockchain(unsigned int miner_wallet);
+
+    int receive_tx(Transaction *tx);
+
+    void miner_start(unsigned int num_threads);
+    void miner_stop();
 
     int save(char *path);
 
 private:
+    void update_internal_wallets();
+
+    Block *current_block;
     std::vector<Block *> *blocks;
     std::vector<Wallet *> *wallets;
 };

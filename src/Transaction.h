@@ -6,16 +6,28 @@
 class Transaction
 {
 public:
-    Transaction(Wallet *to, Wallet *from, double amount, double fee);
+    Transaction(unsigned int to, unsigned int from, double amount, double fee);
 
     void update_hash();
     unsigned char *get_hash();
+
     void set_left_child(Transaction *left);
     void set_right_child(Transaction *right);
 
+    unsigned int get_to()
+    { return to; }
+
+    unsigned int get_from()
+    { return from; }
+
+    double get_amount()
+    {return amount; }
+
+    double get_fee()
+    {return fee; }
 private:
-    Wallet *to;
-    Wallet *from;
+    unsigned int to;
+    unsigned int from;
     double amount;
     double fee;
 

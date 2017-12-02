@@ -2,23 +2,34 @@
 #include "Block.h"
 #include "crypto/SHA256.h"
 
-Block::Block(Transaction *tx_root, unsigned int tx_max)
+Block::Block(Transaction *tx_root, unsigned char *prev_hash)
 {
-    this->tx_max = tx_max;
-
     this->tx_pointers = new std::vector<Transaction *>;
     tx_pointers->push_back(tx_root);
+
+    this->prev_hash = prev_hash;
 }
 
-int Block::add_tx(Transaction *tx)
+void Block::add_tx(Transaction *tx)
 {
+    tx->update_hash();
     tx_pointers->push_back(tx);
-    unsigned int index = size;
+
+    unsigned int index = (size - 1) / 2;
+
+    if(2 * index + 1 == size)
+    {
+        tx_pointers->at(index)->set_left_child(tx_pointers->at(size));
+    }
+    else
+    {
+        tx_pointers->at(index)->set_right_child(tx_pointers->at(size));
+    }
 
     while(index != 0)
     {
         tx_pointers->at(index)->update_hash();
-        index = (index + 1) / 2;
+        index = (index - 1) / 2;
     }
 
     size++;

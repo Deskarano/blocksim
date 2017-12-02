@@ -3,7 +3,7 @@
 
 #include <cstring>
 
-Transaction::Transaction(Wallet *to, Wallet *from, double amount, double fee)
+Transaction::Transaction(unsigned int to, unsigned int from, double amount, double fee)
 {
     this->to = to;
     this->from = from;
@@ -13,9 +13,9 @@ Transaction::Transaction(Wallet *to, Wallet *from, double amount, double fee)
 
 void Transaction::update_hash()
 {
-    char *wallets = new char[2];
-    wallets[0] = to->get_ID();
-    wallets[1] = to->get_ID();
+    char *wallets = new char[2 * sizeof(int)];
+    memcpy(wallets, &to, sizeof(int));
+    memcpy(wallets + sizeof(int), &from, sizeof(int));
 
     hash_t wallet_hash = SHA256(wallets);
     delete wallets;
@@ -45,8 +45,7 @@ void Transaction::update_hash()
     if (right == nullptr)
     {
         right_hash = new unsigned char[32];
-        for (int i =
-                0; i < 32; i++)
+        for (int i = 0; i < 32; i++)
         {
             right_hash[i] = 0;
         }

@@ -8,16 +8,21 @@
 class Block
 {
 public:
-    Block(Transaction *tx_root, unsigned int tx_max);
+    Block(Transaction *tx_root, unsigned char *prev_hash);
 
-    int add_tx(Transaction *tx);
+    void add_tx(Transaction *tx);
 
     void update_hash();
     unsigned char *get_hash();
 
+    unsigned int get_size()
+    { return size; }
+
+    std::vector<Transaction *> *get_tx_pointers()
+    { return tx_pointers; }
+
 private:
     std::vector<Transaction *> *tx_pointers;
-    unsigned int tx_max;
     unsigned int size;
 
     unsigned char *hash;
