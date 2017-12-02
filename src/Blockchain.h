@@ -2,8 +2,10 @@
 #define BLOCKSIM_BLOCKCHAIN_H
 
 #include "Block.h"
-#include "Wallet.h"
+#include "InternalWallet.h"
+
 #include <vector>
+#include <unordered_map>
 
 class Blockchain
 {
@@ -18,11 +20,13 @@ public:
     int save(char *path);
 
 private:
-    void update_internal_wallets();
+    void confirm_internal_wallets(Block *block);
 
     Block *current_block;
     std::vector<Block *> *blocks;
-    std::vector<Wallet *> *wallets;
+    std::unordered_map<unsigned int, InternalWallet *> *wallets;
+
+    unsigned int miner_wallet;
 };
 
 

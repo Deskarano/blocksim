@@ -10,11 +10,11 @@ set(SOURCE_FILES main.cpp
         src/Blockchain.h
         src/Block.cpp
         src/Block.h
-        src/Wallet.cpp
-        src/Wallet.h
         src/Transaction.cpp
         src/Transaction.h
 
         src/crypto/SHA256.cpp
-        src/crypto/SHA256.h)
+        src/crypto/SHA256.h
+
+        src/InternalWallet.h)
 add_executable(blocksim ${SOURCE_FILES})

@@ -1,4 +1,5 @@
 #include <iostream>
+#include "src/Blockchain.h"
 
 using namespace std;
 
@@ -8,6 +9,8 @@ using namespace std;
 
 int main()
 {
+    Blockchain *chain = new Blockchain(0);
+    /*
     string input;
     while (input != "exit")
     {
@@ -28,4 +31,5 @@ int main()
             cout << "\tminer [option]: change the blockchain miner state. See 'miner help'\n";
         }
     }
+     */
 }

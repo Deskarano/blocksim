@@ -9,6 +9,11 @@ Transaction::Transaction(unsigned int to, unsigned int from, double amount, doub
     this->from = from;
     this->amount = amount;
     this->fee = fee;
+
+    this->left = nullptr;
+    this->right = nullptr;
+
+    update_hash();
 }
 
 void Transaction::update_hash()
@@ -77,7 +82,7 @@ void Transaction::update_hash()
 
 hash_t Transaction::get_hash()
 {
-    if(hash == nullptr)
+    if(!hash)
     {
         update_hash();
     }

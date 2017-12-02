@@ -1,8 +1,6 @@
 #ifndef BLOCKSIM_TRANSACTION_H
 #define BLOCKSIM_TRANSACTION_H
 
-#include "Wallet.h"
-
 class Transaction
 {
 public:
