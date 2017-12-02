@@ -7,7 +7,7 @@
 void Blockchain::gen_next_block()
 {
     current_block = new Block(current_block->get_hash());
-    Transaction *reward = new Transaction(miner_wallet, 0, 25, 0);
+    Transaction *reward = new Transaction(0, miner_wallet, 25, 0);
 
     receive_tx(reward);
 }
@@ -27,7 +27,7 @@ Blockchain::Blockchain(unsigned int miner_wallet)
     Block *genesis_block = new Block(zero_hash);
     current_block = genesis_block;
 
-    Transaction *genesis_tx = new Transaction(miner_wallet, 0, 25, 0);
+    Transaction *genesis_tx = new Transaction(0, miner_wallet, 25, 0);
     receive_tx(genesis_tx);
 
     confirm_internal_wallets(genesis_block);
@@ -38,7 +38,7 @@ void Blockchain::add_wallet(unsigned int ID)
 {
     InternalWallet *wallet = new InternalWallet();
 
-    std::pair<unsigned int, InternalWallet *> *wallet_pair = new std::pair<unsigned int, InternalWallet *>;
+    auto *wallet_pair = new std::pair<unsigned int, InternalWallet *>;
     wallet_pair->first = ID;
     wallet_pair->second = wallet;
     wallets->insert(*wallet_pair);
@@ -98,12 +98,6 @@ void Blockchain::miner_start(unsigned int difficulty)
         current_block->update_hash();
 
         unsigned char *hash = current_block->get_hash();
-        for(int i = 0; i < 32; i++)
-        {
-            printf("%02x", hash[i]);
-        }
-
-        printf("\n");
     }
 }
 
@@ -112,7 +106,7 @@ void Blockchain::confirm_internal_wallets(Block *block)
     std::vector<Transaction *> *tx_pointers = block->get_tx_pointers();
     Transaction *current_tx = nullptr;
 
-    for(int i = 0; i < block->get_size(); i++)
+    for(unsigned int i = 0; i < block->get_size(); i++)
     {
         current_tx = tx_pointers->at(i);
 
@@ -129,12 +123,5 @@ void Blockchain::confirm_internal_wallets(Block *block)
             wallets->at(from)->change_balance(-amount);
             wallets->at(from)->change_balance(-fee);
         }
-    }
-
-    std::cout << wallets->size() << "wallets\n";
-
-    for(auto &wallet : *wallets)
-    {
-        std::cout << wallet.first << ": " << wallet.second->get_balance() << std::endl;
     }
 }

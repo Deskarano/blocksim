@@ -1,9 +1,12 @@
 #include <cstring>
+#include <iostream>
 #include "Block.h"
 #include "crypto/SHA256.h"
 
 Block::Block(unsigned char *prev_hash)
 {
+    printf("New block %p with prev_hash ", this);
+    print_hash(prev_hash);
     this->tx_pointers = new std::vector<Transaction *>;
 
     this->size = 0;
@@ -13,10 +16,10 @@ Block::Block(unsigned char *prev_hash)
 
 void Block::add_tx(Transaction *tx)
 {
-    tx->update_hash();
+    printf("Adding tx %p to block %p\n", tx, this);
     tx_pointers->push_back(tx);
 
-    if(size != 0)
+    if(size > 0)
     {
         unsigned int index = (size - 1) / 2;
 
@@ -34,6 +37,8 @@ void Block::add_tx(Transaction *tx)
             tx_pointers->at(index)->update_hash();
             index = (index - 1) / 2;
         }
+
+        tx_pointers->at(0)->update_hash();
     }
 
     size++;
@@ -42,12 +47,17 @@ void Block::add_tx(Transaction *tx)
 
 void Block::update_hash()
 {
+    delete hash;
     char *hash_data = new char[96];
     std::memcpy(hash_data, prev_hash, 32);
     std::memcpy(hash_data + 32, tx_pointers->at(0)->get_hash(), 32);
     std::memcpy(hash_data + 64, &nonce, 32);
 
-    hash = SHA256(hash_data);
+    hash = SHA256(hash_data, 96);
+
+    printf("New block hash for %p: ", this);
+    print_hash(hash);
+
     delete hash_data;
 }
 

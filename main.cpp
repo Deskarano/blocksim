@@ -11,8 +11,6 @@ int main()
 {
     Blockchain *chain = new Blockchain(5);
 
-    //chain->miner_start(0);
-
 
     /*
     string input;

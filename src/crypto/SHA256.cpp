@@ -1,6 +1,7 @@
 #include "SHA256.h"
 
 #include <cstring>
+#include <cstdio>
 
 using namespace std;
 
@@ -41,9 +42,9 @@ void SHA256Transform(SHA256_CTX *ctx, uchar data[])
 {
     uint a, b, c, d, e, f, g, h, i, j, t1, t2, m[64];
 
-    for (i = 0, j = 0; i < 16; ++i, j += 4)
+    for(i = 0, j = 0; i < 16; ++i, j += 4)
         m[i] = (data[j] << 24) | (data[j + 1] << 16) | (data[j + 2] << 8) | (data[j + 3]);
-    for (; i < 64; ++i)
+    for(; i < 64; ++i)
         m[i] = SIG1(m[i - 2]) + m[i - 7] + SIG0(m[i - 15]) + m[i - 16];
 
     a = ctx->state[0];
@@ -55,7 +56,7 @@ void SHA256Transform(SHA256_CTX *ctx, uchar data[])
     g = ctx->state[6];
     h = ctx->state[7];
 
-    for (i = 0; i < 64; ++i)
+    for(i = 0; i < 64; ++i)
     {
         t1 = h + EP1(e) + CH(e, f, g) + k[i] + m[i];
         t2 = EP0(a) + MAJ(a, b, c);
@@ -96,11 +97,11 @@ void SHA256Init(SHA256_CTX *ctx)
 
 void SHA256Update(SHA256_CTX *ctx, uchar data[], uint len)
 {
-    for (uint i = 0; i < len; ++i)
+    for(uint i = 0; i < len; ++i)
     {
         ctx->data[ctx->datalen] = data[i];
         ctx->datalen++;
-        if (ctx->datalen == 64)
+        if(ctx->datalen == 64)
         {
             SHA256Transform(ctx, ctx->data);
             DBL_INT_ADD(ctx->bitlen[0], ctx->bitlen[1], 512);
@@ -113,18 +114,18 @@ void SHA256Final(SHA256_CTX *ctx, uchar hash[])
 {
     uint i = ctx->datalen;
 
-    if (ctx->datalen < 56)
+    if(ctx->datalen < 56)
     {
         ctx->data[i++] = 0x80;
 
-        while (i < 56)
+        while(i < 56)
             ctx->data[i++] = 0x00;
     }
     else
     {
         ctx->data[i++] = 0x80;
 
-        while (i < 64)
+        while(i < 64)
             ctx->data[i++] = 0x00;
 
         SHA256Transform(ctx, ctx->data);
@@ -142,7 +143,7 @@ void SHA256Final(SHA256_CTX *ctx, uchar hash[])
     ctx->data[56] = ctx->bitlen[1] >> 24;
     SHA256Transform(ctx, ctx->data);
 
-    for (i = 0; i < 4; ++i)
+    for(i = 0; i < 4; ++i)
     {
         hash[i] = (ctx->state[0] >> (24 - i * 8)) & 0x000000ff;
         hash[i + 4] = (ctx->state[1] >> (24 - i * 8)) & 0x000000ff;
@@ -155,15 +156,24 @@ void SHA256Final(SHA256_CTX *ctx, uchar hash[])
     }
 }
 
-hash_t SHA256(char *data)
+unsigned char *SHA256(char *data, unsigned int len)
 {
-    size_t strLen = strlen(data);
     SHA256_CTX ctx;
-    hash_t hash = new unsigned char[32];
+    unsigned char *hash = new unsigned char[32];
 
     SHA256Init(&ctx);
-    SHA256Update(&ctx, (unsigned char *) data, strLen);
+    SHA256Update(&ctx, (unsigned char *) data, len);
     SHA256Final(&ctx, hash);
 
     return hash;
+}
+
+void print_hash(unsigned char *hash)
+{
+    for(int i = 0; i < 32; i++)
+    {
+        printf("%02x", hash[i]);
+    }
+
+    printf("\n");
 }

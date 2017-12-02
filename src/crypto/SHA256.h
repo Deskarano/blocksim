@@ -1,8 +1,8 @@
 #ifndef BLOCKSIM_SHA256_H
 #define BLOCKSIM_SHA256_H
 
-typedef unsigned char * hash_t;
+unsigned char *SHA256(char *data, unsigned int len);
 
-hash_t SHA256(char *data);
+void print_hash(unsigned char *hash);
 
 #endif //BLOCKSIM_SHA256_H

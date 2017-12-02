@@ -2,11 +2,14 @@
 #include "crypto/SHA256.h"
 
 #include <cstring>
+#include <iostream>
 
-Transaction::Transaction(unsigned int to, unsigned int from, double amount, double fee)
+Transaction::Transaction(unsigned int from, unsigned int to, double amount, double fee)
 {
-    this->to = to;
+    printf("New tx: %p\n", this);
     this->from = from;
+    this->to = to;
+
     this->amount = amount;
     this->fee = fee;
 
@@ -22,21 +25,21 @@ void Transaction::update_hash()
     memcpy(wallets, &to, sizeof(int));
     memcpy(wallets + sizeof(int), &from, sizeof(int));
 
-    hash_t wallet_hash = SHA256(wallets);
+    unsigned char *wallet_hash = SHA256(wallets, 2 * sizeof(int));
     delete wallets;
 
     char *values = new char[2 * sizeof(double)];
     memcpy(values, &amount, sizeof(double));
     memcpy(values + sizeof(double), &fee, sizeof(double));
 
-    hash_t value_hash = SHA256(values);
+    unsigned char *value_hash = SHA256(values, 2 * sizeof(double));
     delete values;
 
-    hash_t left_hash;
-    if (left == nullptr)
+    unsigned char *left_hash;
+    if(left == nullptr)
     {
         left_hash = new unsigned char[32];
-        for (int i = 0; i < 32; i++)
+        for(int i = 0; i < 32; i++)
         {
             left_hash[i] = 0;
         }
@@ -46,11 +49,11 @@ void Transaction::update_hash()
         left_hash = left->get_hash();
     }
 
-    hash_t right_hash;
-    if (right == nullptr)
+    unsigned char *right_hash;
+    if(right == nullptr)
     {
         right_hash = new unsigned char[32];
-        for (int i = 0; i < 32; i++)
+        for(int i = 0; i < 32; i++)
         {
             right_hash[i] = 0;
         }
@@ -62,7 +65,7 @@ void Transaction::update_hash()
 
     char *concat_data = new char[128];
 
-    for (int i = 0; i < 32; i++)
+    for(int i = 0; i < 32; i++)
     {
         concat_data[i] = wallet_hash[i];
         concat_data[i + 32] = value_hash[i];
@@ -77,10 +80,13 @@ void Transaction::update_hash()
     delete left_hash;
     delete right_hash;
 
-    hash = SHA256(concat_data);
+    hash = SHA256(concat_data, 128);
+
+    printf("New tx hash for %p: ", this);
+    print_hash(hash);
 }
 
-hash_t Transaction::get_hash()
+unsigned char *Transaction::get_hash()
 {
     if(!hash)
     {
@@ -88,14 +94,4 @@ hash_t Transaction::get_hash()
     }
 
     return hash;
-}
-
-void Transaction::set_left_child(Transaction *left)
-{
-    this->left = left;
-}
-
-void Transaction::set_right_child(Transaction *right)
-{
-    this->right = right;
 }
