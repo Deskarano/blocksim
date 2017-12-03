@@ -15,6 +15,9 @@ public:
     void update_hash();
     unsigned char *get_hash();
 
+    unsigned char *get_prev_hash()
+    { return prev_hash; }
+
     std::vector<Transaction *> *get_tx_pointers()
     { return tx_pointers; }
 

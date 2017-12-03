@@ -21,14 +21,14 @@ Transaction::Transaction(unsigned int from, unsigned int to, double amount, doub
 
 void Transaction::update_hash()
 {
-    char *wallets = new char[2 * sizeof(int)];
+    auto *wallets = new unsigned char[2 * sizeof(int)];
     memcpy(wallets, &to, sizeof(int));
     memcpy(wallets + sizeof(int), &from, sizeof(int));
 
     unsigned char *wallet_hash = SHA256(wallets, 2 * sizeof(int));
     delete wallets;
 
-    char *values = new char[2 * sizeof(double)];
+    auto *values = new unsigned char[2 * sizeof(double)];
     memcpy(values, &amount, sizeof(double));
     memcpy(values + sizeof(double), &fee, sizeof(double));
 
@@ -63,7 +63,7 @@ void Transaction::update_hash()
         right_hash = right->get_hash();
     }
 
-    char *concat_data = new char[128];
+    auto *concat_data = new unsigned char[128];
 
     for(int i = 0; i < 32; i++)
     {
@@ -74,13 +74,14 @@ void Transaction::update_hash()
         concat_data[i + 96] = right_hash[i];
     }
 
-    delete concat_data;
-    delete wallet_hash;
-    delete value_hash;
-    delete left_hash;
-    delete right_hash;
-
     hash = SHA256(concat_data, 128);
+
+    //TODO: fix this memory mess
+    //delete concat_data;
+    //delete wallet_hash;
+    //delete value_hash;
+    //delete left_hash;
+    //delete right_hash;
 
     printf("New tx hash for %p: ", this);
     print_hash(hash);

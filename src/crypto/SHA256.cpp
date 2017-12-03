@@ -2,6 +2,7 @@
 
 #include <cstring>
 #include <cstdio>
+#include <stdlib.h>
 
 using namespace std;
 
@@ -156,13 +157,13 @@ void SHA256Final(SHA256_CTX *ctx, uchar hash[])
     }
 }
 
-unsigned char *SHA256(char *data, unsigned int len)
+unsigned char *SHA256(unsigned char *data, unsigned int len)
 {
     SHA256_CTX ctx;
-    unsigned char *hash = new unsigned char[32];
+    auto hash = new unsigned char[32];
 
     SHA256Init(&ctx);
-    SHA256Update(&ctx, (unsigned char *) data, len);
+    SHA256Update(&ctx, data, len);
     SHA256Final(&ctx, hash);
 
     return hash;

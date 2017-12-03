@@ -43,17 +43,18 @@ void Block::add_tx(Transaction *tx)
 
     size++;
     update_hash();
+
+    printf("%i\n", size);
 }
 
 void Block::update_hash()
 {
-    delete hash;
-    char *hash_data = new char[96];
+    auto *hash_data = new unsigned char[64 + sizeof(unsigned int)];
     std::memcpy(hash_data, prev_hash, 32);
     std::memcpy(hash_data + 32, tx_pointers->at(0)->get_hash(), 32);
-    std::memcpy(hash_data + 64, &nonce, 32);
+    std::memcpy(hash_data + 64, &nonce, sizeof(unsigned int));
 
-    hash = SHA256(hash_data, 96);
+    hash = SHA256(hash_data, 64 + sizeof(unsigned int));
 
     printf("New block hash for %p: ", this);
     print_hash(hash);

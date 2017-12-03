@@ -3,14 +3,21 @@
 
 using namespace std;
 
-/**
-
- */
-
 int main()
 {
-    Blockchain *chain = new Blockchain(5);
+    auto *chain = new Blockchain(1);
 
+    for(int i = 2; i <= 100; i++)
+    {
+        Transaction *tx = new Transaction(1, (unsigned) i, .1, .1);
+        chain->receive_tx(tx);
+    }
+
+    chain->miner_start(6, 3);
+    miner_data_t *chain_data = chain->get_miner_data();
+
+    while(chain_data->run);
+    for(volatile int i = 0; i < 1000000; i++);
 
     /*
     string input;
