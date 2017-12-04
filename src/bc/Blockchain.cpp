@@ -24,23 +24,23 @@ Blockchain::Blockchain(unsigned int miner_wallet)
     current_block = genesis_block;
     block_pointers->push_back(current_block);
 
-    auto *genesis_tx = new Transaction(0, miner_wallet, 25, 0);
+    auto *genesis_tx = new Transaction(miner_wallet, miner_wallet, 25, 0);
     receive_tx(genesis_tx);
 }
 
 void Blockchain::add_wallet(unsigned int ID)
 {
-    auto *wallet = new InternalWallet();
+    auto wallet = new InternalWallet();
 
-    auto *wallet_pair = new std::pair<unsigned int, InternalWallet *>;
+    auto wallet_pair = new std::pair<unsigned int, InternalWallet *>;
     wallet_pair->first = ID;
     wallet_pair->second = wallet;
     wallet_pointers->insert(*wallet_pair);
 }
 
-int Blockchain::receive_tx(Transaction *tx)
+void Blockchain::receive_tx(Transaction *tx)
 {
-    if(tx->get_from() != 0 && wallet_pointers->find(tx->get_from()) == wallet_pointers->end())
+    if(wallet_pointers->find(tx->get_from()) == wallet_pointers->end())
     {
         add_wallet(tx->get_from());
     }
@@ -50,14 +50,12 @@ int Blockchain::receive_tx(Transaction *tx)
         add_wallet(tx->get_to());
     }
 
-    if(tx->get_from() == 0)
+    if(current_block->get_tx_pointers()->empty())
     {
         wallet_pointers->at(tx->get_to())->change_unconfirmed_balance(tx->get_amount());
         wallet_pointers->at(miner_wallet)->change_unconfirmed_balance(tx->get_fee());
 
         current_block->add_tx(tx);
-
-        return 0;
     }
     else
     {
@@ -70,38 +68,26 @@ int Blockchain::receive_tx(Transaction *tx)
             wallet_pointers->at(tx->get_from())->change_unconfirmed_balance(-1 * tx->get_fee());
 
             current_block->add_tx(tx);
-            return 0;
         }
         else
         {
-            return -1;
+            std::cout << "--blockchain_error\tInsufficient confirmed funds in 'from' wallet. Deleting transaction\n";
+            delete tx;
         }
     }
 }
 
-bool test_hash_for_difficulty(unsigned char *hash, unsigned int difficulty)
+unsigned int get_max_difficulty(const unsigned char *hash)
 {
-    for(unsigned int i = 0; i < difficulty; i++)
+    for(unsigned int i = 0; i < 256; i++)
     {
-        if(i % 2 == 0)
+        if((hash[i / 8] >> (7 - (i % 8)) & 0b00000001) == 1)
         {
-            //top nibble
-            if(((hash[i / 2] >> 4) & 0xF) != 0)
-            {
-                return false;
-            }
-        }
-        else
-        {
-            //bottom nibble
-            if((hash[i / 2] & 0xF) != 0)
-            {
-                return false;
-            }
+            return i;
         }
     }
 
-    return true;
+    return 256;
 }
 
 void *miner_thread(void *data)
@@ -126,11 +112,17 @@ void *miner_thread(void *data)
 
     while(((miner_data_t *) data)->running)
     {
+        if(((miner_data_t *) data)->time_ended != time(nullptr))
+        {
+            ((miner_data_t *) data)->time_ended = time(nullptr);
+        }
+
         if(last_tx_hash != block->get_tx_pointers()->at(0)->get_hash())
         {
             std::cout << "--blockchain_miner\tDetected new transaction in block. Resetting miner_data\n";
-            ((miner_data_t *) data)->num_hashes = 0;
             ((miner_data_t *) data)->time_started = time(nullptr);
+            ((miner_data_t *) data)->num_hashes = 0;
+            ((miner_data_t *) data)->best_difficulty = 0;
 
             last_tx_hash = block->get_tx_pointers()->at(0)->get_hash();
             std::memcpy(hash_data + 32, last_tx_hash, 32);
@@ -144,11 +136,19 @@ void *miner_thread(void *data)
         delete test_hash;
         test_hash = SHA256(hash_data, 64 + sizeof(unsigned int) + sizeof(time_t));
 
-        if(test_hash_for_difficulty(test_hash, difficulty))
+        unsigned int test_difficulty = get_max_difficulty(test_hash);
+
+        if(test_difficulty > ((miner_data_t *) data)->best_difficulty)
+        {
+            ((miner_data_t *) data)->best_difficulty = test_difficulty;
+        }
+
+        if(test_difficulty > difficulty)
         {
             std::cout << "\n\n--blockchain_miner\tFound nonce for block " << block << "\n";
             std::cout << "--blockchain_miner\tRun 'confirm' to confirm block\n";
 
+            ((miner_data_t *) data)->time_ended = time(nullptr);
             ((miner_data_t *) data)->result_found = true;
             ((miner_data_t *) data)->result = nonce;
         }
@@ -160,7 +160,7 @@ void *miner_thread(void *data)
 
 void *miner_thread_controller(void *data)
 {
-    miner_data_t *miner_data = (miner_data_t *) data;
+    auto miner_data = (miner_data_t *) data;
 
     for(unsigned int i = 0; i < miner_data->num_threads; i++)
     {
@@ -202,6 +202,7 @@ void Blockchain::miner_start(unsigned int difficulty, unsigned int num_threads)
     miner_data->num_threads = num_threads;
 
     miner_data->num_hashes = 0;
+    miner_data->best_difficulty = 0;
     miner_data->result = 0;
 
     auto handle = new pthread_t;
@@ -219,7 +220,7 @@ void Blockchain::miner_stop()
 
 void Blockchain::confirm_next_block(unsigned int difficulty)
 {
-    if(test_hash_for_difficulty(current_block->get_block_hash(), difficulty))
+    if(get_max_difficulty(current_block->get_block_hash()) > difficulty)
     {
         confirm_internal_wallets();
         gen_next_block();
@@ -233,24 +234,37 @@ void Blockchain::confirm_next_block(unsigned int difficulty)
 void Blockchain::confirm_internal_wallets()
 {
     std::vector<Transaction *> *tx_pointers = current_block->get_tx_pointers();
-    Transaction *current_tx = nullptr;
+    Transaction *current_tx = tx_pointers->at(0);
 
-    for(unsigned int i = 0; i < current_block->get_size(); i++)
+    unsigned int to = current_tx->get_to();
+    unsigned int from;
+    double amount = current_tx->get_amount();
+    double fee = current_tx->get_fee();
+
+    wallet_pointers->at(to)->change_balance(amount);
+    wallet_pointers->at(miner_wallet)->change_balance(fee);
+
+    for(unsigned int i = 1; i < current_block->get_size(); i++)
     {
         current_tx = tx_pointers->at(i);
 
-        unsigned int to = current_tx->get_to();
-        unsigned int from = current_tx->get_from();
-        double amount = current_tx->get_amount();
-        double fee = current_tx->get_fee();
+        to = current_tx->get_to();
+        from = current_tx->get_from();
+        amount = current_tx->get_amount();
+        fee = current_tx->get_fee();
 
         wallet_pointers->at(to)->change_balance(amount);
         wallet_pointers->at(miner_wallet)->change_balance(fee);
 
-        if(from != 0)
+        wallet_pointers->at(from)->change_balance(-amount);
+        wallet_pointers->at(from)->change_balance(-fee);
+    }
+
+    for(auto &wallet_pointer : *wallet_pointers)
+    {
+        if(wallet_pointer.second->get_balance() != wallet_pointer.second->get_uncomfirmed_balance())
         {
-            wallet_pointers->at(from)->change_balance(-amount);
-            wallet_pointers->at(from)->change_balance(-fee);
+            std::cout << "--blockchain_error\tInvalid transactions in block " << current_block << "\n";
         }
     }
 }
@@ -258,7 +272,7 @@ void Blockchain::confirm_internal_wallets()
 void Blockchain::gen_next_block()
 {
     current_block = new Block(current_block->get_block_hash());
-    auto *reward = new Transaction(0, miner_wallet, 25, 0);
+    auto *reward = new Transaction(miner_wallet, miner_wallet, 25, 0);
 
     block_pointers->push_back(current_block);
 

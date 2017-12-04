@@ -28,7 +28,7 @@ int main()
             std::cout << "\t\tconfirm: confirms the current block, adding it to the chain\n";
             std::cout << "\tInformation:\n";
             std::cout << "\t\tblocks: lists all blocks in the current blockchain\n";
-            std::cout << "\t\ttxs [block]: lists all transactions in the specified block\n";
+            std::cout << "\t\ttransactions [block]: lists all transactions in the specified block\n";
             std::cout << "\t\twallets: lists all wallets in the current blockchain\n";
             std::cout << "\tMining:\n";
             std::cout << "\t\tminer_start [difficulty] [num_threads]: starts the blockchain miner\n";
@@ -68,12 +68,7 @@ int main()
             std::cout << "\n";
 
             auto tx = new Transaction(from, to, amount, fee);
-            if(main_chain->receive_tx(tx) < 0)
-            {
-                std::cout
-                        << "--blockchain_error\tInsufficient confirmed funds in 'from' wallet. Tx not added to blockchain\n";
-                delete tx;
-            }
+            main_chain->receive_tx(tx);
         }
         else if(input == "blocks")
         {
@@ -132,7 +127,7 @@ int main()
             {
                 std::cout << "\tWallet " << wallet_pointer.first << ":\n";
                 std::cout << "\t\tconfirmed:\t" << wallet_pointer.second->get_balance() << "\n";
-                std::cout << "\t\tuncomfirmed:\t" << wallet_pointer.second->get_uncomfirmed_balance() << "\n";
+                std::cout << "\t\tunconfirmed:\t" << wallet_pointer.second->get_uncomfirmed_balance() << "\n";
             }
         }
         else if(input == "miner_start")
@@ -173,15 +168,16 @@ int main()
 
             std::cout << "\tAnalysis:\n";
 
-            time_t elapsed = time(nullptr) - miner_data->time_started;
+            time_t elapsed = miner_data->time_ended - miner_data->time_started;
             std::cout << "\t\tnum_hashes:\t\t" << miner_data->num_hashes << "\n";
             std::cout << "\t\ttime_elapsed:\t" << elapsed << "s\n";
 
             double hash_per_sec = (double) miner_data->num_hashes / elapsed;
             std::cout << "\t\thash/sec:\t\t" << hash_per_sec << "\n";
-            std::cout << "\t\thash/sec/thread\t" << hash_per_sec / miner_data->num_threads << "\n";
+            std::cout << "\t\thash/sec/thread:\t" << hash_per_sec / miner_data->num_threads << "\n";
 
             std::cout << "\tResults:\n";
+            std::cout << "\t\tbest_difficulty:\t" << miner_data->best_difficulty << "\n";
             std::cout << "\t\tresult:\t\t\t" << miner_data->result << "\n";
         }
         else if(input == "confirm")
@@ -197,7 +193,7 @@ int main()
         }
         else
         {
-            std::cout << "\n--blockchain_ui\t\tUnrecognized command: " << input << "\n";
+            std::cout << "\n--blockchain_error\tUnrecognized command: " << input << "\n";
         }
 
         std::cout << "\n";

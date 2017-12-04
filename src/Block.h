@@ -8,7 +8,7 @@
 class Block
 {
 public:
-    Block(unsigned char *prev_hash);
+    explicit Block(unsigned char *prev_hash);
 
     void add_tx(Transaction *tx);
     void update_hash();

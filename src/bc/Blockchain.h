@@ -10,6 +10,7 @@
 typedef struct
 {
     time_t time_started;
+    time_t time_ended;
 
     bool running;
     bool result_found;
@@ -19,15 +20,16 @@ typedef struct
     unsigned int num_threads;
 
     unsigned int num_hashes;
+    unsigned int best_difficulty;
     unsigned int result;
 } miner_data_t;
 
 class Blockchain
 {
 public:
-    Blockchain(unsigned int miner_wallet);
+    explicit Blockchain(unsigned int miner_wallet);
 
-    int receive_tx(Transaction *tx);
+    void receive_tx(Transaction *tx);
 
     void miner_start(unsigned int difficulty, unsigned int num_treads);
     void miner_stop();
