@@ -1,7 +1,8 @@
-#include <cstring>
-#include <iostream>
 #include "Block.h"
 #include "../crypto/SHA256.h"
+
+#include <cstring>
+#include <iostream>
 
 Block::Block(unsigned char *prev_hash)
 {
@@ -48,7 +49,8 @@ void Block::add_tx(Transaction *tx)
 
 void Block::update_hash()
 {
-    auto *hash_data = new unsigned char[64 + sizeof(unsigned int) + sizeof(time_t)];
+    auto hash_data = new unsigned char[64 + sizeof(unsigned int) + sizeof(time_t)];
+
     std::memcpy(hash_data, prev_hash, 32);
     std::memcpy(hash_data + 32, tx_pointers->at(0)->get_hash(), 32);
     std::memcpy(hash_data + 64, &nonce, sizeof(unsigned int));

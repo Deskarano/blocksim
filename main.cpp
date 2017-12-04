@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "src/bc/Blockchain.h"
+#include "src/blockchain/Blockchain.h"
 #include "src/crypto/SHA256.h"
 
 int main()
@@ -25,7 +25,7 @@ int main()
                     << "\t\tgen [miner_wallet]: creates a new blockchain, with all mined coins and fees deposited to wallet [miner_wallet]\n";
             std::cout
                     << "\t\ttx [from] [to] [amount] [fee]: creates the specified transaction on the blockchain, if valid\n";
-            std::cout << "\t\tconfirm: confirms the current block, adding it to the chain\n";
+            std::cout << "\t\tconfirm [difficulty]: confirms the current block, adding it to the chain\n";
             std::cout << "\tInformation:\n";
             std::cout << "\t\tblocks: lists all blocks in the current blockchain\n";
             std::cout << "\t\ttransactions [block]: lists all transactions in the specified block\n";

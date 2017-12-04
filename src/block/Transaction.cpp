@@ -71,13 +71,13 @@ void Transaction::update_hash()
     {
         concat_data[i] = wallet_hash[i];
         concat_data[i + 32] = value_hash[i];
-
         concat_data[i + 64] = left_hash[i];
         concat_data[i + 96] = right_hash[i];
     }
     memcpy(concat_data + 128, &timestamp, sizeof(time_t));
 
     hash = SHA256(concat_data, 128 + sizeof(time_t));
+    delete concat_data;
 
     std::cout << "--blockchain_tx\t\tNew tx hash for " << this << ": ";
     print_hash(hash);

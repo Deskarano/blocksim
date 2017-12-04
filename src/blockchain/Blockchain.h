@@ -47,7 +47,6 @@ public:
 
 private:
     void gen_next_block();
-
     void confirm_internal_wallets();
 
     void add_wallet(unsigned int ID);

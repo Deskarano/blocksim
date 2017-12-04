@@ -143,9 +143,9 @@ void *miner_thread(void *data)
             ((miner_data_t *) data)->best_difficulty = test_difficulty;
         }
 
-        if(test_difficulty > difficulty)
+        if(test_difficulty >= difficulty)
         {
-            std::cout << "\n\n--blockchain_miner\tFound nonce for block " << block << "\n";
+            std::cout << "\r\r--blockchain_miner\tFound nonce for block " << block << "\n";
             std::cout << "--blockchain_miner\tRun 'confirm' to confirm block\n";
 
             ((miner_data_t *) data)->time_ended = time(nullptr);
@@ -220,7 +220,7 @@ void Blockchain::miner_stop()
 
 void Blockchain::confirm_next_block(unsigned int difficulty)
 {
-    if(get_max_difficulty(current_block->get_block_hash()) > difficulty)
+    if(get_max_difficulty(current_block->get_block_hash()) >= difficulty)
     {
         confirm_internal_wallets();
         gen_next_block();
