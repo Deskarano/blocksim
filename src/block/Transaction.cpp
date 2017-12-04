@@ -1,5 +1,5 @@
 #include "Transaction.h"
-#include "crypto/SHA256.h"
+#include "../crypto/SHA256.h"
 
 #include <cstring>
 #include <iostream>

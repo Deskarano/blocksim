@@ -1,7 +1,7 @@
 #ifndef BLOCKSIM_BLOCKCHAIN_H
 #define BLOCKSIM_BLOCKCHAIN_H
 
-#include "../Block.h"
+#include "../block/Block.h"
 #include "InternalWallet.h"
 
 #include <vector>

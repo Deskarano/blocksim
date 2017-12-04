@@ -1,7 +1,7 @@
 #include <cstring>
 #include <iostream>
 #include "Block.h"
-#include "crypto/SHA256.h"
+#include "../crypto/SHA256.h"
 
 Block::Block(unsigned char *prev_hash)
 {
