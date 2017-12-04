@@ -1,10 +1,7 @@
 #include "SHA256.h"
 
+#include <iostream>
 #include <cstring>
-#include <cstdio>
-#include <stdlib.h>
-
-using namespace std;
 
 #define uchar unsigned char
 #define uint unsigned int
@@ -130,7 +127,7 @@ void SHA256Final(SHA256_CTX *ctx, uchar hash[])
             ctx->data[i++] = 0x00;
 
         SHA256Transform(ctx, ctx->data);
-        memset(ctx->data, 0, 56);
+        std::memset(ctx->data, 0, 56);
     }
 
     DBL_INT_ADD(ctx->bitlen[0], ctx->bitlen[1], ctx->datalen * 8);
@@ -176,5 +173,5 @@ void print_hash(unsigned char *hash)
         printf("%02x", hash[i]);
     }
 
-    printf("\n");
+    std::cout << "\n";
 }

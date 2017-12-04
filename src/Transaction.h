@@ -1,6 +1,8 @@
 #ifndef BLOCKSIM_TRANSACTION_H
 #define BLOCKSIM_TRANSACTION_H
 
+#include <ctime>
+
 class Transaction
 {
 public:
@@ -15,6 +17,9 @@ public:
     void set_right_child(Transaction *right)
     { this->right = right; }
 
+    time_t get_timestamp()
+    { return timestamp; }
+
     unsigned int get_from()
     { return from; }
 
@@ -28,6 +33,8 @@ public:
     { return fee; }
 
 private:
+    time_t timestamp;
+
     unsigned int from;
     unsigned int to;
 

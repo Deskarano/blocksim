@@ -6,7 +6,9 @@
 
 Transaction::Transaction(unsigned int from, unsigned int to, double amount, double fee)
 {
-    printf("New tx: %p\n", this);
+    timestamp = time(nullptr);
+
+    std::cout << "--blockchain_tx\t\tNew tx " << this << "\n";
     this->from = from;
     this->to = to;
 
@@ -21,24 +23,19 @@ Transaction::Transaction(unsigned int from, unsigned int to, double amount, doub
 
 void Transaction::update_hash()
 {
-    auto *wallets = new unsigned char[2 * sizeof(int)];
+    unsigned char wallets[2 * sizeof(int)];
     memcpy(wallets, &to, sizeof(int));
     memcpy(wallets + sizeof(int), &from, sizeof(int));
-
     unsigned char *wallet_hash = SHA256(wallets, 2 * sizeof(int));
-    delete wallets;
 
-    auto *values = new unsigned char[2 * sizeof(double)];
+    unsigned char values[2 * sizeof(double)];
     memcpy(values, &amount, sizeof(double));
     memcpy(values + sizeof(double), &fee, sizeof(double));
-
     unsigned char *value_hash = SHA256(values, 2 * sizeof(double));
-    delete values;
 
-    unsigned char *left_hash;
+    unsigned char left_hash[32];
     if(left == nullptr)
     {
-        left_hash = new unsigned char[32];
         for(int i = 0; i < 32; i++)
         {
             left_hash[i] = 0;
@@ -46,13 +43,15 @@ void Transaction::update_hash()
     }
     else
     {
-        left_hash = left->get_hash();
+        for(int i = 0; i < 32; i++)
+        {
+            left_hash[i] = left->get_hash()[i];
+        }
     }
 
-    unsigned char *right_hash;
+    unsigned char right_hash[32];
     if(right == nullptr)
     {
-        right_hash = new unsigned char[32];
         for(int i = 0; i < 32; i++)
         {
             right_hash[i] = 0;
@@ -60,10 +59,13 @@ void Transaction::update_hash()
     }
     else
     {
-        right_hash = right->get_hash();
+        for(int i = 0; i < 32; i++)
+        {
+            right_hash[i] = right->get_hash()[i];
+        }
     }
 
-    auto *concat_data = new unsigned char[128];
+    auto *concat_data = new unsigned char[128 + sizeof(timestamp)];
 
     for(int i = 0; i < 32; i++)
     {
@@ -73,26 +75,15 @@ void Transaction::update_hash()
         concat_data[i + 64] = left_hash[i];
         concat_data[i + 96] = right_hash[i];
     }
+    memcpy(concat_data + 128, &timestamp, sizeof(time_t));
 
-    hash = SHA256(concat_data, 128);
+    hash = SHA256(concat_data, 128 + sizeof(time_t));
 
-    //TODO: fix this memory mess
-    //delete concat_data;
-    //delete wallet_hash;
-    //delete value_hash;
-    //delete left_hash;
-    //delete right_hash;
-
-    printf("New tx hash for %p: ", this);
+    std::cout << "--blockchain_tx\t\tNew tx hash for " << this << ": ";
     print_hash(hash);
 }
 
 unsigned char *Transaction::get_hash()
 {
-    if(!hash)
-    {
-        update_hash();
-    }
-
     return hash;
 }

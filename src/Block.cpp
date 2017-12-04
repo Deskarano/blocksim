@@ -5,8 +5,9 @@
 
 Block::Block(unsigned char *prev_hash)
 {
-    printf("New block %p with prev_hash ", this);
-    print_hash(prev_hash);
+    timestamp = time(nullptr);
+
+    std::cout << "--blockchain_block\tNew block " << this << "\n";
     this->tx_pointers = new std::vector<Transaction *>;
 
     this->size = 0;
@@ -16,7 +17,7 @@ Block::Block(unsigned char *prev_hash)
 
 void Block::add_tx(Transaction *tx)
 {
-    printf("Adding tx %p to block %p\n", tx, this);
+    std::cout << "--blockchain_block\tAdding tx " << tx << "to block " << this << "\n";
     tx_pointers->push_back(tx);
 
     if(size > 0)
@@ -43,31 +44,20 @@ void Block::add_tx(Transaction *tx)
 
     size++;
     update_hash();
-
-    printf("%i\n", size);
 }
 
 void Block::update_hash()
 {
-    auto *hash_data = new unsigned char[64 + sizeof(unsigned int)];
+    auto *hash_data = new unsigned char[64 + sizeof(unsigned int) + sizeof(time_t)];
     std::memcpy(hash_data, prev_hash, 32);
     std::memcpy(hash_data + 32, tx_pointers->at(0)->get_hash(), 32);
     std::memcpy(hash_data + 64, &nonce, sizeof(unsigned int));
+    std::memcpy(hash_data + 64 + sizeof(unsigned int), &timestamp, sizeof(time_t));
 
-    hash = SHA256(hash_data, 64 + sizeof(unsigned int));
+    block_hash = SHA256(hash_data, 64 + sizeof(unsigned int) + sizeof(time_t));
 
-    printf("New block hash for %p: ", this);
-    print_hash(hash);
+    std::cout << "--blockchain_block\tNew block hash for " << this << ": ";
+    print_hash(block_hash);
 
     delete hash_data;
-}
-
-unsigned char *Block::get_hash()
-{
-    if (hash == nullptr)
-    {
-        update_hash();
-    }
-
-    return hash;
 }
