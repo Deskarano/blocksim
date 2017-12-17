@@ -22,13 +22,14 @@ int main()
             std::cout << "\nblocksim commands:\n";
             std::cout << "\tBlockchain:\n";
             std::cout
-                    << "\t\tgen [miner_wallet]: creates a new blockchain, with all mined coins and fees deposited to wallet [miner_wallet]\n";
+                    << "\t\tnew_chain [miner_wallet]: creates a new blockchain, with all mined coins and fees deposited to wallet [miner_wallet]\n";
+            std::cout << "\t\tnew_block [difficulty]: confirms the current block, adding it to the chain\n";
             std::cout
-                    << "\t\ttx [from] [to] [amount] [fee]: creates the specified transaction on the blockchain, if valid\n";
-            std::cout << "\t\tconfirm [difficulty]: confirms the current block, adding it to the chain\n";
+                    << "\t\tnew_tx [from] [to] [amount] [fee]: creates the specified transaction on the blockchain, if valid\n";
+            std::cout << "\t\tnew_wallet [ID]: creates a new wallet with ID [ID]\n";
             std::cout << "\tInformation:\n";
             std::cout << "\t\tblocks: lists all blocks in the current blockchain\n";
-            std::cout << "\t\ttransactions [block]: lists all transactions in the specified block\n";
+            std::cout << "\t\ttxs [block]: lists all transactions in the specified block\n";
             std::cout << "\t\twallets: lists all wallets in the current blockchain\n";
             std::cout << "\tMining:\n";
             std::cout << "\t\tminer_start [difficulty] [num_threads]: starts the blockchain miner\n";
@@ -36,7 +37,7 @@ int main()
             std::cout << "\t\tminer_status: shows the current status of the blockchain miner";
             std::cout << "\n";
         }
-        else if(input == "gen")
+        else if(input == "new_chain")
         {
             unsigned int miner_wallet;
 
@@ -46,7 +47,18 @@ int main()
             std::cout << "\n";
             main_chain = new Blockchain(miner_wallet);
         }
-        else if(input == "tx")
+        else if(input == "new_block")
+        {
+            unsigned int difficulty;
+
+            std::cout << "\t[difficulty] = ";
+            std::cin >> difficulty;
+
+            std::cout << "\n";
+
+            main_chain->confirm_next_block(difficulty);
+        }
+        else if(input == "new_tx")
         {
             unsigned int from;
             unsigned int to;
@@ -69,6 +81,15 @@ int main()
 
             auto tx = new Transaction(from, to, amount, fee);
             main_chain->receive_tx(tx);
+        }
+        else if(input == "new_wallet")
+        {
+            unsigned int ID;
+
+            std::cout << "ID: ";
+            std::cin >> ID;
+
+            main_chain->add_wallet(ID);
         }
         else if(input == "blocks")
         {
@@ -93,7 +114,7 @@ int main()
                 std::cout << "\t\tsize:\t\t" << block_pointers->at(i)->get_size() << "\n";
             }
         }
-        else if(input == "transactions")
+        else if(input == "txs")
         {
             unsigned int block;
 
@@ -127,7 +148,7 @@ int main()
             {
                 std::cout << "\tWallet " << wallet_pointer.first << ":\n";
                 std::cout << "\t\tconfirmed:\t" << wallet_pointer.second->get_balance() << "\n";
-                std::cout << "\t\tunconfirmed:\t" << wallet_pointer.second->get_uncomfirmed_balance() << "\n";
+                std::cout << "\t\tunconfirmed:\t" << wallet_pointer.second->get_unconfirmed_balance() << "\n";
             }
         }
         else if(input == "miner_start")
@@ -179,17 +200,6 @@ int main()
             std::cout << "\tResults:\n";
             std::cout << "\t\tbest_difficulty:\t" << miner_data->best_difficulty << "\n";
             std::cout << "\t\tresult:\t\t\t" << miner_data->result << "\n";
-        }
-        else if(input == "confirm")
-        {
-            unsigned int difficulty;
-
-            std::cout << "\t[difficulty] = ";
-            std::cin >> difficulty;
-
-            std::cout << "\n";
-
-            main_chain->confirm_next_block(difficulty);
         }
         else
         {

@@ -16,10 +16,10 @@ public:
     double get_balance()
     { return balance; }
 
-    void change_unconfirmed_balance(double d_uncomfirmed_balance)
-    { this->unconfirmed_balance += d_uncomfirmed_balance; }
+    void change_unconfirmed_balance(double d_unconfirmed_balance)
+    { this->unconfirmed_balance += d_unconfirmed_balance; }
 
-    double get_uncomfirmed_balance()
+    double get_unconfirmed_balance()
     { return unconfirmed_balance; }
 
 private:

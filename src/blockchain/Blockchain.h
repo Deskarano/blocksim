@@ -29,12 +29,13 @@ class Blockchain
 public:
     explicit Blockchain(unsigned int miner_wallet);
 
+    void confirm_next_block(unsigned int difficulty);
     void receive_tx(Transaction *tx);
+    void add_wallet(unsigned int ID);
 
     void miner_start(unsigned int difficulty, unsigned int num_treads);
     void miner_stop();
 
-    void confirm_next_block(unsigned int difficulty);
 
     std::vector<Block *> *get_block_pointers()
     { return block_pointers; }
@@ -49,7 +50,6 @@ private:
     void gen_next_block();
     void confirm_internal_wallets();
 
-    void add_wallet(unsigned int ID);
 
     Block *current_block;
     std::vector<Block *> *block_pointers;

@@ -11,7 +11,7 @@ Blockchain::Blockchain(unsigned int miner_wallet)
     this->block_pointers = new std::vector<Block *>;
     this->wallet_pointers = new std::unordered_map<unsigned int, InternalWallet *>;
     this->miner_wallet = miner_wallet;
-    this->miner_data = nullptr;
+    this->miner_data = new miner_data_t;
 
     auto *zero_hash = new unsigned char[32];
     for(int i = 0; i < 32; i++)
@@ -59,7 +59,7 @@ void Blockchain::receive_tx(Transaction *tx)
     }
     else
     {
-        if(tx->get_amount() + tx->get_fee() < wallet_pointers->at(tx->get_from())->get_uncomfirmed_balance())
+        if(tx->get_amount() + tx->get_fee() <= wallet_pointers->at(tx->get_from())->get_unconfirmed_balance())
         {
             wallet_pointers->at(tx->get_to())->change_unconfirmed_balance(tx->get_amount());
             wallet_pointers->at(miner_wallet)->change_unconfirmed_balance(tx->get_fee());
@@ -77,17 +77,17 @@ void Blockchain::receive_tx(Transaction *tx)
     }
 }
 
-unsigned int get_max_difficulty(const unsigned char *hash)
+unsigned char get_max_difficulty(const unsigned char *hash)
 {
-    for(unsigned int i = 0; i < 256; i++)
+    for(unsigned char i = 0; i < 256; i++)
     {
-        if((hash[i / 8] >> (7 - (i % 8)) & 0b00000001) == 1)
+        if(hash[i / 8] >> (7 - (i % 8)) & 0b00000001)
         {
             return i;
         }
     }
 
-    return 256;
+    return 255;
 }
 
 void *miner_thread(void *data)
@@ -187,11 +187,6 @@ void *miner_thread_controller(void *data)
 
 void Blockchain::miner_start(unsigned int difficulty, unsigned int num_threads)
 {
-    if(miner_data == nullptr)
-    {
-        miner_data = new miner_data_t;
-    }
-
     //reset miner_data
     miner_data->time_started = time(nullptr);
     miner_data->running = true;
@@ -262,7 +257,7 @@ void Blockchain::confirm_internal_wallets()
 
     for(auto &wallet_pointer : *wallet_pointers)
     {
-        if(wallet_pointer.second->get_balance() != wallet_pointer.second->get_uncomfirmed_balance())
+        if(wallet_pointer.second->get_balance() != wallet_pointer.second->get_unconfirmed_balance())
         {
             std::cout << "--blockchain_error\tInvalid transactions in block " << current_block << "\n";
         }
