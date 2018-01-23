@@ -101,17 +101,17 @@ int main()
                 std::cout << "Block " << i << " (" << block_pointers->at(i) << "):\n";
 
                 std::cout << "\tHashes:\n";
-                std::cout << "\t\tprev_hash:\t";
+                std::cout << "\t\tprev_hash: ";
                 print_hash(block_pointers->at(i)->get_prev_hash());
-                std::cout << "\t\ttx_hash:\t\t";
+                std::cout << "\t\ttx_hash: ";
                 print_hash(block_pointers->at(i)->get_tx_pointers()->at(0)->get_hash());
-                std::cout << "\t\tblock_hash:\t";
+                std::cout << "\t\tblock_hash: ";
                 print_hash(block_pointers->at(i)->get_block_hash());
 
                 std::cout << "\tInfo:\n";
-                std::cout << "\t\ttime:\t\t" << block_pointers->at(i)->get_timestamp() << "\n";
-                std::cout << "\t\tnonce:\t\t" << block_pointers->at(i)->get_nonce() << "\n";
-                std::cout << "\t\tsize:\t\t" << block_pointers->at(i)->get_size() << "\n";
+                std::cout << "\t\ttime: " << block_pointers->at(i)->get_timestamp() << "\n";
+                std::cout << "\t\tnonce: " << block_pointers->at(i)->get_nonce() << "\n";
+                std::cout << "\t\tsize: " << block_pointers->at(i)->get_size() << "\n";
             }
         }
         else if(input == "txs")
@@ -128,14 +128,14 @@ int main()
             {
                 std::cout << "Transaction " << i << " (" << tx_pointers->at(i) << "):\n";
                 std::cout << "\tDetails:\n";
-                std::cout << "\t\tfrom:\t\t" << tx_pointers->at(i)->get_from() << "\n";
-                std::cout << "\t\tto:\t\t\t" << tx_pointers->at(i)->get_to() << "\n";
-                std::cout << "\t\tamount:\t\t" << tx_pointers->at(i)->get_amount() << "\n";
-                std::cout << "\t\tfee:\t\t\t" << tx_pointers->at(i)->get_fee() << "\n";
+                std::cout << "\t\tfrom: " << tx_pointers->at(i)->get_from() << "\n";
+                std::cout << "\t\tto: " << tx_pointers->at(i)->get_to() << "\n";
+                std::cout << "\t\tamount: " << tx_pointers->at(i)->get_amount() << "\n";
+                std::cout << "\t\tfee: " << tx_pointers->at(i)->get_fee() << "\n";
 
                 std::cout << "\tMetadata:\n";
-                std::cout << "\t\ttime:\t\t" << tx_pointers->at(i)->get_timestamp() << "\n";
-                std::cout << "\t\thash:\t\t";
+                std::cout << "\t\ttime: " << tx_pointers->at(i)->get_timestamp() << "\n";
+                std::cout << "\t\thash: ";
                 print_hash(tx_pointers->at(i)->get_hash());
             }
         }
@@ -147,8 +147,8 @@ int main()
             for(auto &wallet_pointer : *main_chain->get_wallet_pointers())
             {
                 std::cout << "\tWallet " << wallet_pointer.first << ":\n";
-                std::cout << "\t\tconfirmed:\t" << wallet_pointer.second->get_balance() << "\n";
-                std::cout << "\t\tunconfirmed:\t" << wallet_pointer.second->get_unconfirmed_balance() << "\n";
+                std::cout << "\t\tconfirmed: " << wallet_pointer.second->get_balance() << "\n";
+                std::cout << "\t\tunconfirmed: " << wallet_pointer.second->get_unconfirmed_balance() << "\n";
             }
         }
         else if(input == "miner_start")
@@ -179,27 +179,27 @@ int main()
             std::cout << "miner_data:\n";
 
             std::cout << "\tStatus:\n";
-            std::cout << "\t\trunning:\t\t\t" << miner_data->running << "\n";
-            std::cout << "\t\tresult_found:\t" << miner_data->result_found << "\n";
+            std::cout << "\t\trunning: " << miner_data->running << "\n";
+            std::cout << "\t\tresult_found: " << miner_data->result_found << "\n";
 
             std::cout << "\tConfig:\n";
-            std::cout << "\t\tblock:\t\t\t" << miner_data->block << "\n";
-            std::cout << "\t\tdifficulty:\t\t" << miner_data->difficulty << "\n";
-            std::cout << "\t\tnum_threads:\t\t" << miner_data->num_threads << "\n";
+            std::cout << "\t\tblock: " << miner_data->block << "\n";
+            std::cout << "\t\tdifficulty: " << miner_data->difficulty << "\n";
+            std::cout << "\t\tnum_threads: " << miner_data->num_threads << "\n";
 
             std::cout << "\tAnalysis:\n";
 
             time_t elapsed = miner_data->time_ended - miner_data->time_started;
-            std::cout << "\t\tnum_hashes:\t\t" << miner_data->num_hashes << "\n";
-            std::cout << "\t\ttime_elapsed:\t" << elapsed << "s\n";
+            std::cout << "\t\tnum_hashes: " << miner_data->num_hashes << "\n";
+            std::cout << "\t\ttime_elapsed: " << elapsed << "s\n";
 
             double hash_per_sec = (double) miner_data->num_hashes / elapsed;
-            std::cout << "\t\thash/sec:\t\t" << hash_per_sec << "\n";
-            std::cout << "\t\thash/sec/thread:\t" << hash_per_sec / miner_data->num_threads << "\n";
+            std::cout << "\t\thash/sec: " << hash_per_sec << "\n";
+            std::cout << "\t\thash/sec/thread: " << hash_per_sec / miner_data->num_threads << "\n";
 
             std::cout << "\tResults:\n";
-            std::cout << "\t\tbest_difficulty:\t" << miner_data->best_difficulty << "\n";
-            std::cout << "\t\tresult:\t\t\t" << miner_data->result << "\n";
+            std::cout << "\t\tbest_difficulty: " << miner_data->best_difficulty << "\n";
+            std::cout << "\t\tresult: " << miner_data->result << "\n";
         }
         else
         {

@@ -18,7 +18,7 @@ Block::Block(unsigned char *prev_hash)
 
 void Block::add_tx(Transaction *tx)
 {
-    std::cout << "--blockchain_block\tAdding tx " << tx << "to block " << this << "\n";
+    std::cout << "--blockchain_block\tAdding tx " << tx << " to block " << this << "\n";
     tx_pointers->push_back(tx);
 
     if(size > 0)
