@@ -2,7 +2,8 @@ cmake_minimum_required(VERSION 3.8)
 project(blocksim)
 
 set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_CXX_FLAGS "-Wall -lpthread")
+set(CMAKE_CXX_FLAGS "-Wall -g")
+find_package(Threads)
 
 set(SOURCE_FILES main.cpp
 
@@ -17,4 +18,6 @@ set(SOURCE_FILES main.cpp
         src/crypto/SHA256.h
 
         src/blockchain/InternalWallet.h)
+
 add_executable(blocksim ${SOURCE_FILES})
+target_link_libraries(blocksim ${CMAKE_THREAD_LIBS_INIT})

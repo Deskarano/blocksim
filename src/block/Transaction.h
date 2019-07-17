@@ -44,7 +44,7 @@ private:
     Transaction *left;
     Transaction *right;
 
-    unsigned char *hash;
+    unsigned char hash[32];
 };
 
 

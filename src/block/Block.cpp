@@ -4,7 +4,7 @@
 #include <cstring>
 #include <iostream>
 
-Block::Block(unsigned char *prev_hash)
+Block::Block(unsigned char prev_hash[32])
 {
     timestamp = time(nullptr);
 
@@ -56,7 +56,7 @@ void Block::update_hash()
     std::memcpy(hash_data + 64, &nonce, sizeof(unsigned int));
     std::memcpy(hash_data + 64 + sizeof(unsigned int), &timestamp, sizeof(time_t));
 
-    block_hash = SHA256(hash_data, 64 + sizeof(unsigned int) + sizeof(time_t));
+    SHA256(hash_data, 64 + sizeof(unsigned int) + sizeof(time_t), block_hash);
 
     std::cout << "--blockchain_block\tNew block hash for " << this << ": ";
     print_hash(block_hash);

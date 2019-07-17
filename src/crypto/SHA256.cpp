@@ -154,16 +154,16 @@ void SHA256Final(SHA256_CTX *ctx, uchar hash[])
     }
 }
 
-unsigned char *SHA256(unsigned char *data, unsigned int len)
+void SHA256(unsigned char *data, unsigned int len, unsigned char target[32])
 {
     SHA256_CTX ctx;
-    auto hash = new unsigned char[32];
+    unsigned char hash[32];
 
     SHA256Init(&ctx);
     SHA256Update(&ctx, data, len);
     SHA256Final(&ctx, hash);
 
-    return hash;
+    memcpy(target, hash, 32);
 }
 
 void print_hash(unsigned char *hash)

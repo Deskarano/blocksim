@@ -26,12 +26,14 @@ void Transaction::update_hash()
     unsigned char wallets[2 * sizeof(int)];
     memcpy(wallets, &to, sizeof(int));
     memcpy(wallets + sizeof(int), &from, sizeof(int));
-    unsigned char *wallet_hash = SHA256(wallets, 2 * sizeof(int));
+    unsigned char wallet_hash[32];
+    SHA256(wallets, 2 * sizeof(int), wallet_hash);
 
     unsigned char values[2 * sizeof(double)];
     memcpy(values, &amount, sizeof(double));
     memcpy(values + sizeof(double), &fee, sizeof(double));
-    unsigned char *value_hash = SHA256(values, 2 * sizeof(double));
+    unsigned char value_hash[32];
+    SHA256(values, 2 * sizeof(double), value_hash);
 
     unsigned char left_hash[32];
     if(left == nullptr)
@@ -76,7 +78,7 @@ void Transaction::update_hash()
     }
     memcpy(concat_data + 128, &timestamp, sizeof(time_t));
 
-    hash = SHA256(concat_data, 128 + sizeof(time_t));
+    SHA256(concat_data, 128 + sizeof(time_t), hash);
     delete concat_data;
 
     std::cout << "--blockchain_tx\t\tNew tx hash for " << this << ": ";

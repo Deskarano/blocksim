@@ -21,11 +21,9 @@ int main()
         {
             std::cout << "\nblocksim commands:\n";
             std::cout << "\tBlockchain:\n";
-            std::cout
-                    << "\t\tnew_chain [miner_wallet]: creates a new blockchain, with all mined coins and fees deposited to wallet [miner_wallet]\n";
+            std::cout << "\t\tnew_chain [miner_wallet]: creates a new blockchain, with all mined coins and fees deposited to wallet [miner_wallet]\n";
             std::cout << "\t\tnew_block [difficulty]: confirms the current block, adding it to the chain\n";
-            std::cout
-                    << "\t\tnew_tx [from] [to] [amount] [fee]: creates the specified transaction on the blockchain, if valid\n";
+            std::cout << "\t\tnew_tx [from] [to] [amount] [fee]: creates the specified transaction on the blockchain, if valid\n";
             std::cout << "\t\tnew_wallet [ID]: creates a new wallet with ID [ID]\n";
             std::cout << "\tInformation:\n";
             std::cout << "\t\tblocks: lists all blocks in the current blockchain\n";

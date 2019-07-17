@@ -8,7 +8,7 @@
 class Block
 {
 public:
-    explicit Block(unsigned char *prev_hash);
+    explicit Block(unsigned char prev_hash[32]);
 
     void add_tx(Transaction *tx);
     void update_hash();
@@ -40,7 +40,7 @@ private:
     std::vector<Transaction *> *tx_pointers;
     unsigned int size;
 
-    unsigned char *block_hash;
+    unsigned char block_hash[32];
     unsigned char *prev_hash;
     unsigned int nonce;
 };

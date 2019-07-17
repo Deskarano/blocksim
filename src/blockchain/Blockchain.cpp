@@ -5,6 +5,7 @@
 #include <iostream>
 #include <random>
 #include <cstring>
+#include <pthread.h>
 
 Blockchain::Blockchain(unsigned int miner_wallet)
 {
@@ -133,8 +134,7 @@ void *miner_thread(void *data)
         nonce = (unsigned) rand->operator()();
         std::memcpy(hash_data + 64, &nonce, sizeof(unsigned int));
 
-        delete test_hash;
-        test_hash = SHA256(hash_data, 64 + sizeof(unsigned int) + sizeof(time_t));
+        SHA256(hash_data, 64 + sizeof(unsigned int) + sizeof(time_t), test_hash);
 
         unsigned int test_difficulty = get_max_difficulty(test_hash);
 
@@ -154,6 +154,7 @@ void *miner_thread(void *data)
         }
     }
 
+    delete test_hash;
     delete rand;
     return nullptr;
 }
