@@ -103,20 +103,17 @@ void *miner_thread(void *data)
     auto *hash_data = new unsigned char[64 + sizeof(unsigned int) + sizeof(time_t)];
     std::memcpy(hash_data, block->get_prev_hash(), 32);
     std::memcpy(hash_data + 32, last_tx_hash, 32);
-    //no nonce-ents
+    // no nonce-ents (copied later)
     std::memcpy(hash_data + 64 + sizeof(unsigned int), &block_timestamp, sizeof(time_t));
 
     std::random_device *rand = new std::random_device;
 
     auto *test_hash = new unsigned char[32];
-    unsigned int nonce;
+    unsigned int nonce_base;
 
     while(((miner_data_t *) data)->running)
     {
-        if(((miner_data_t *) data)->time_ended != time(nullptr))
-        {
-            ((miner_data_t *) data)->time_ended = time(nullptr);
-        }
+        ((miner_data_t *) data)->time_ended = time(nullptr);
 
         if(last_tx_hash != block->get_tx_pointers()->at(0)->get_hash())
         {
@@ -129,60 +126,45 @@ void *miner_thread(void *data)
             std::memcpy(hash_data + 32, last_tx_hash, 32);
         }
 
-        ++((miner_data_t *) data)->num_hashes;
+        nonce_base = (unsigned) rand->operator()();
+        std::memcpy(hash_data + 64, &nonce_base, sizeof(unsigned int));
 
-        nonce = (unsigned) rand->operator()();
-        std::memcpy(hash_data + 64, &nonce, sizeof(unsigned int));
-
-        SHA256(hash_data, 64 + sizeof(unsigned int) + sizeof(time_t), test_hash);
-
-        unsigned int test_difficulty = get_max_difficulty(test_hash);
-
-        if(test_difficulty > ((miner_data_t *) data)->best_difficulty)
+        while(((miner_data_t *) data)->running && ((miner_data_t *) data)->time_ended == time(nullptr))
         {
-            ((miner_data_t *) data)->best_difficulty = test_difficulty;
-        }
+            SHA256(hash_data, 64 + sizeof(unsigned int) + sizeof(time_t), test_hash);
+            ++((miner_data_t *) data)->num_hashes;
 
-        if(test_difficulty >= difficulty)
-        {
-            std::cout << "\r\r--blockchain_miner\tFound nonce for block " << block << "\n";
-            std::cout << "--blockchain_miner\tRun 'confirm' to confirm block\n";
+            unsigned int test_difficulty = get_max_difficulty(test_hash);
+            if(test_difficulty > ((miner_data_t *) data)->best_difficulty)
+            {
+                ((miner_data_t *) data)->best_difficulty = test_difficulty;
+            }
 
-            ((miner_data_t *) data)->time_ended = time(nullptr);
-            ((miner_data_t *) data)->result_found = true;
-            ((miner_data_t *) data)->result = nonce;
+            if(test_difficulty >= difficulty)
+            {
+                std::cout << "\r\r--blockchain_miner\tFound nonce for block " << block << "\n";
+                std::cout << "--blockchain_miner\tRun 'confirm' to confirm block\n";
+
+                ((miner_data_t *) data)->time_ended = time(nullptr);
+                ((miner_data_t *) data)->result_found = true;
+                ((miner_data_t *) data)->result = nonce_base;
+                ((miner_data_t *) data)->block->set_nonce(((miner_data_t *) data)->result);
+                ((miner_data_t *) data)->block->update_hash();
+
+                ((miner_data_t *) data)->running = false;
+                std::cout << "\nblocksim> ";
+                std::cout.flush();
+            }
+            else
+            {
+                nonce_base = nonce_base + 1;
+                std::memcpy(hash_data + 64, &nonce_base, sizeof(unsigned int));
+            }
         }
     }
 
-    delete test_hash;
+    delete[] test_hash;
     delete rand;
-    return nullptr;
-}
-
-void *miner_thread_controller(void *data)
-{
-    auto miner_data = (miner_data_t *) data;
-
-    for(unsigned int i = 0; i < miner_data->num_threads; i++)
-    {
-        auto thread = new pthread_t;
-        pthread_create(thread, nullptr, miner_thread, miner_data);
-        delete thread;
-    }
-
-    //idle while running
-    while(miner_data->running && !miner_data->result_found);
-
-    if(miner_data->result_found)
-    {
-        miner_data->block->set_nonce(miner_data->result);
-        miner_data->block->update_hash();
-
-        miner_data->running = false;
-        std::cout << "\nblocksim> ";
-        std::cout.flush();
-    }
-
     return nullptr;
 }
 
@@ -201,8 +183,12 @@ void Blockchain::miner_start(unsigned int difficulty, unsigned int num_threads)
     miner_data->best_difficulty = 0;
     miner_data->result = 0;
 
-    auto handle = new pthread_t;
-    pthread_create(handle, nullptr, miner_thread_controller, miner_data);
+    for(unsigned int i = 0; i < miner_data->num_threads; i++)
+    {
+        auto thread = new pthread_t;
+        pthread_create(thread, nullptr, miner_thread, miner_data);
+        delete thread;
+    }
 
     std::cout << "--blockchain_miner\tStarted mining on " << num_threads << " threads\n";
 }
